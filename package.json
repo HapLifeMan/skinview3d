@@ -1,5 +1,5 @@
 {
-	"name": "@skinbook/skinview3d",
+	"name": "@skinbookmc/skinview3d",
 	"version": "1.0.0",
 	"description": "Three.js powered Minecraft skin viewer",
 	"main": "libs/skinview3d.js",
