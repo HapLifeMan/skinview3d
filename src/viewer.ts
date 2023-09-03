@@ -493,8 +493,8 @@ export class SkinViewer {
 			this.onContextRestored,
 			false,
 		)
-		window.addEventListener('keydown', this.onKeyDown.bind(this))
-		window.addEventListener('keyup', this.onKeyUp.bind(this))
+		this.canvas.addEventListener('keydown', this.onKeyDown.bind(this))
+		this.canvas.addEventListener('keyup', this.onKeyUp.bind(this))
 	}
 
 	onKeyDown(event: KeyboardEvent) {

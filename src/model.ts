@@ -346,14 +346,33 @@ export class SkinObject extends Group {
 	setOuterLayerVisible(value: boolean): void {
 		this.getBodyParts().forEach((part) => (part.outerLayer.visible = value))
 	}
+	
+	/**
+	 *  Sets every body part into its default position/rotation.
+	 */
+	setToDefault(): void {
+		this.head.position.y = 0
 
-	resetPositions(): void {
-		this.head.position.set(0, 0, 0)
-		this.body.position.set(0, 0, 0)
-		this.leftArm.position.set(0, 0, 0)
-		this.rightArm.position.set(0, 0, 0)
-		this.leftLeg.position.set(0, 0, 0)
-		this.rightLeg.position.set(0, 0, 0)
+		this.body.rotation.x = 0
+		this.body.position.z = 0
+		this.body.position.y = -6
+
+		this.leftLeg.position.z = 0
+		this.rightLeg.position.z = 0
+
+		this.leftArm.position.z = 0
+		this.leftArm.position.y = -1.5
+
+		this.leftArm.rotation.z = 0
+		this.leftArm.rotation.z = 0
+		this.leftArm.rotation.x = 0
+
+		this.rightArm.position.z = 0
+		this.rightArm.position.y = -1.5
+
+		this.rightArm.rotation.z = 0
+		this.rightArm.rotation.z = 0
+		this.rightArm.rotation.x = 0
 	}
 
 	resetJoints(): void {
@@ -563,8 +582,7 @@ export class PlayerObject extends Group {
 	set isCrouching(value: boolean) {
 		if (!value) {
 			this.position.z = 0
-			this.skin.resetPositions()
-			this.skin.resetJoints()
+			this.skin.setToDefault()
 		} else {
 			const t = 1 * 2
 
