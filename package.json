@@ -1,5 +1,5 @@
 {
-	"name": "skinview3d",
+	"name": "@skinbook/skinview3d",
 	"version": "3.0.0-alpha.1",
 	"description": "Three.js powered Minecraft skin viewer",
 	"main": "libs/skinview3d.js",
@@ -15,11 +15,12 @@
 		"dev:watch:bundles": "rollup -w --no-watch.clearScreen -c --configPlugin=swc3",
 		"dev:serve": "ws",
 		"dev": "npm-run-all --parallel dev:watch:bundles dev:serve",
-		"prepublishOnly": "npm run clean && npm run build"
+		"prepublishOnly": "npm run clean && npm run build",
+		"prettify": "npx prettier --write ."
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/bs-community/skinview3d.git"
+		"url": "git+https://github.com/skinbook/skinview3d.git"
 	},
 	"author": "Haowei Wen <yushijinhun@gmail.com> (https://github.com/yushijinhun)",
 	"contributors": [
@@ -30,9 +31,9 @@
 	],
 	"license": "MIT",
 	"bugs": {
-		"url": "https://github.com/bs-community/skinview3d/issues"
+		"url": "https://github.com/skinbook/skinview3d/issues"
 	},
-	"homepage": "https://github.com/bs-community/skinview3d",
+	"homepage": "https://github.com/skinbook/skinview3d",
 	"files": [
 		"libs",
 		"bundles",
@@ -40,6 +41,7 @@
 	],
 	"dependencies": {
 		"@types/three": "^0.142.0",
+		"prettier": "^3.0.3",
 		"skinview-utils": "^0.7.0",
 		"three": "^0.142.0"
 	},
