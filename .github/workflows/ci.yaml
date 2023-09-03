@@ -2,6 +2,11 @@ name: CI
 
 on: [push, pull_request]
 
+permissions:
+  contents: write 
+  pull-requests: write 
+  packages: write 
+
 jobs:
     test:
         runs-on: ubuntu-latest
