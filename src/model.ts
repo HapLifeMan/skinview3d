@@ -6,7 +6,7 @@ import {
 	FrontSide,
 	Group,
 	Mesh,
-	MeshStandardMaterial,
+	MeshBasicMaterial,
 	Object3D,
 	Texture,
 	Vector2,
@@ -135,18 +135,18 @@ export class SkinObject extends Group {
 	private slim = false
 
 	private _map: Texture | null = null
-	private layer1Material: MeshStandardMaterial
-	private layer1MaterialBiased: MeshStandardMaterial
-	private layer2Material: MeshStandardMaterial
-	private layer2MaterialBiased: MeshStandardMaterial
+	private layer1Material: MeshBasicMaterial
+	private layer1MaterialBiased: MeshBasicMaterial
+	private layer2Material: MeshBasicMaterial
+	private layer2MaterialBiased: MeshBasicMaterial
 
 	constructor() {
 		super()
 
-		this.layer1Material = new MeshStandardMaterial({
+		this.layer1Material = new MeshBasicMaterial({
 			side: FrontSide,
 		})
-		this.layer2Material = new MeshStandardMaterial({
+		this.layer2Material = new MeshBasicMaterial({
 			side: DoubleSide,
 			transparent: true,
 			alphaTest: 1e-5,
@@ -359,12 +359,12 @@ export class SkinObject extends Group {
 export class CapeObject extends Group {
 	readonly cape: Mesh
 
-	private material: MeshStandardMaterial
+	private material: MeshBasicMaterial
 
 	constructor() {
 		super()
 
-		this.material = new MeshStandardMaterial({
+		this.material = new MeshBasicMaterial({
 			side: DoubleSide,
 			transparent: true,
 			alphaTest: 1e-5,
@@ -394,12 +394,12 @@ export class ElytraObject extends Group {
 	readonly leftWing: Group
 	readonly rightWing: Group
 
-	private material: MeshStandardMaterial
+	private material: MeshBasicMaterial
 
 	constructor() {
 		super()
 
-		this.material = new MeshStandardMaterial({
+		this.material = new MeshBasicMaterial({
 			side: DoubleSide,
 			transparent: true,
 			alphaTest: 1e-5,
@@ -463,12 +463,12 @@ export class EarsObject extends Group {
 	readonly rightEar: Mesh
 	readonly leftEar: Mesh
 
-	private material: MeshStandardMaterial
+	private material: MeshBasicMaterial
 
 	constructor() {
 		super()
 
-		this.material = new MeshStandardMaterial({
+		this.material = new MeshBasicMaterial({
 			side: FrontSide,
 		})
 		const earBox = new BoxGeometry(8, 8, 4 / 3)
