@@ -14,4 +14,5 @@ rules:
     '@typescript-eslint/no-inferrable-types': off
     '@typescript-eslint/interface-name-prefix': off
     '@typescript-eslint/no-empty-interface': off
-    'tsdoc/syntax': warn
+    'tsdoc/syntax': warn,
+    'no-mixed-spaces-and-tabs': off
