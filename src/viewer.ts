@@ -493,6 +493,20 @@ export class SkinViewer {
 			this.onContextRestored,
 			false,
 		)
+		window.addEventListener('keydown', this.onKeyDown.bind(this))
+		window.addEventListener('keyup', this.onKeyUp.bind(this))
+	}
+
+	onKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Shift') {
+			this.playerObject.isCrouching = true
+		}
+	}
+
+	onKeyUp(event: KeyboardEvent) {
+		if (event.key === 'Shift') {
+			this.playerObject.isCrouching = false
+		}
 	}
 
 	private updateComposerSize(): void {

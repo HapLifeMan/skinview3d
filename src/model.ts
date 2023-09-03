@@ -347,6 +347,15 @@ export class SkinObject extends Group {
 		this.getBodyParts().forEach((part) => (part.outerLayer.visible = value))
 	}
 
+	resetPositions(): void {
+		this.head.position.set(0, 0, 0)
+		this.body.position.set(0, 0, 0)
+		this.leftArm.position.set(0, 0, 0)
+		this.rightArm.position.set(0, 0, 0)
+		this.leftLeg.position.set(0, 0, 0)
+		this.rightLeg.position.set(0, 0, 0)
+	}
+
 	resetJoints(): void {
 		this.head.rotation.set(0, 0, 0)
 		this.leftArm.rotation.set(0, 0, 0)
@@ -549,6 +558,36 @@ export class PlayerObject extends Group {
 	set backEquipment(value: BackEquipment | null) {
 		this.cape.visible = value === 'cape'
 		this.elytra.visible = value === 'elytra'
+	}
+
+	set isCrouching(value: boolean) {
+		if (!value) {
+			this.position.z = 0
+			this.skin.resetPositions()
+			this.skin.resetJoints()
+		} else {
+			const t = 1 * 2
+
+			this.position.z = 0.25
+
+			this.skin.head.position.y = -3.5
+
+			this.skin.body.rotation.x = Math.cos(5) + Math.PI + 348.85
+			this.skin.body.position.z = -2.5
+			this.skin.body.position.y = -8.5
+
+			this.skin.leftLeg.position.z = -3.85
+			this.skin.rightLeg.position.z = -3.85
+
+			this.skin.leftArm.position.z = 0.25
+			this.skin.leftArm.position.y = -5
+			this.skin.leftArm.rotation.x = 6.6
+			this.skin.leftArm.rotation.z = 0.05 + Math.sin(t + Math.PI) * -0.05
+
+			this.skin.rightArm.position.y = -5
+			this.skin.rightArm.rotation.x = 6.6
+			this.skin.rightArm.rotation.z = -0.05 + Math.sin(t + Math.PI) * 0.05
+		}
 	}
 
 	resetJoints(): void {
