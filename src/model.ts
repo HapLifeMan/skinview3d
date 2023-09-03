@@ -10,6 +10,8 @@ import {
 	Object3D,
 	Texture,
 	Vector2,
+	Vector3,
+	Euler,
 } from 'three'
 
 function setUVs(
@@ -122,6 +124,29 @@ export class BodyPart extends Group {
 	}
 }
 
+export class BodyAttachment {
+	private parent: Object3D
+	private object: Object3D
+	private offset: Vector3
+	private rotation: Euler
+
+	constructor(
+		parent: Object3D,
+		object: Object3D,
+		offset: Vector3 = new Vector3(),
+		rotation: Euler = new Euler(),
+	) {
+		this.parent = parent
+		this.object = object
+		this.offset = offset
+		this.rotation = rotation
+
+		this.parent.add(this.object)
+		this.object.position.copy(this.offset)
+		this.object.rotation.copy(this.rotation)
+	}
+}
+
 export class SkinObject extends Group {
 	// body parts
 	readonly head: BodyPart
@@ -131,6 +156,7 @@ export class SkinObject extends Group {
 	readonly rightLeg: BodyPart
 	readonly leftLeg: BodyPart
 
+	public attachments: BodyAttachment[] = []
 	private modelListeners: Array<() => void> = [] // called when model(slim property) is changed
 	private slim = false
 
@@ -346,7 +372,7 @@ export class SkinObject extends Group {
 	setOuterLayerVisible(value: boolean): void {
 		this.getBodyParts().forEach((part) => (part.outerLayer.visible = value))
 	}
-	
+
 	/**
 	 *  Sets every body part into its default position/rotation.
 	 */
@@ -543,18 +569,19 @@ export class PlayerObject extends Group {
 
 		this.cape = new CapeObject()
 		this.cape.name = 'cape'
-		this.cape.position.y = 8
-		this.cape.position.z = -2
-		this.cape.rotation.x = CapeDefaultAngle
-		this.cape.rotation.y = Math.PI
-		this.add(this.cape)
+		new BodyAttachment(
+			this.skin.body,
+			this.cape.cape,
+			new Vector3(0, -2, -4),
+			new Euler(0.2, Math.PI, 0),
+		)
 
 		this.elytra = new ElytraObject()
 		this.elytra.name = 'elytra'
-		this.elytra.position.y = 8
-		this.elytra.position.z = -2
 		this.elytra.visible = false
-		this.add(this.elytra)
+		/**
+		 * TODO: Add elytras back
+		 */
 
 		this.ears = new EarsObject()
 		this.ears.name = 'ears'

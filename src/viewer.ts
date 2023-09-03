@@ -38,7 +38,7 @@ import {
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js'
-import { PlayerAnimation } from './animation.js'
+import { PlayerAnimation, WalkingAnimation } from './animation.js'
 import { type BackEquipment, PlayerObject } from './model.js'
 import { NameTagObject } from './nametag.js'
 
@@ -454,6 +454,10 @@ export class SkinViewer {
 			options.animation === undefined ? null : options.animation
 		this.clock = new Clock()
 
+		if (this._animation === new WalkingAnimation()) {
+			console.log('balls')
+		}
+
 		if (options.renderPaused === true) {
 			this._renderPaused = true
 			this.animationID = null
@@ -624,9 +628,9 @@ export class SkinViewer {
 
 			if (options.makeVisible !== false) {
 				this.playerObject.backEquipment =
-					options.backEquipment === undefined
-						? 'cape'
-						: options.backEquipment
+				options.backEquipment === undefined
+					? 'cape'
+					: options.backEquipment
 			}
 		} else {
 			return loadImage(source).then((image) =>
@@ -940,6 +944,7 @@ export class SkinViewer {
 			this.clock.autoStart = true
 		}
 		if (animation !== null) {
+			this.playerObject.skin.setToDefault()
 			animation.progress = 0
 		}
 		this._animation = animation
