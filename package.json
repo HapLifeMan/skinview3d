@@ -18,6 +18,9 @@
 		"prepublishOnly": "npm run clean && npm run build",
 		"prettify": "npx prettier --write ."
 	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com/@skinbook"
+	},
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/skinbook/skinview3d.git"
