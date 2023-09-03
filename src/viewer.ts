@@ -23,7 +23,6 @@ import {
 	Vector2,
 	WebGLRenderer,
 	AmbientLight,
-	Mapping,
 	CanvasTexture,
 	WebGLRenderTarget,
 	FloatType,
@@ -493,8 +492,11 @@ export class SkinViewer {
 			this.onContextRestored,
 			false,
 		)
-		this.canvas.addEventListener('keydown', this.onKeyDown.bind(this))
-		this.canvas.addEventListener('keyup', this.onKeyUp.bind(this))
+		/**
+		 * Instead of "this.canvas", use "window".
+		 */
+		window.addEventListener('keydown', this.onKeyDown.bind(this))
+		window.addEventListener('keyup', this.onKeyUp.bind(this))
 	}
 
 	onKeyDown(event: KeyboardEvent) {
@@ -690,12 +692,12 @@ export class SkinViewer {
 
 	loadBackground<S extends TextureSource | RemoteImage>(
 		source: S,
-		mapping?: Mapping,
+		mapping?: any,
 	): S extends TextureSource ? void : Promise<void>
 
 	loadBackground<S extends TextureSource | RemoteImage>(
 		source: S,
-		mapping?: Mapping,
+		mapping?: any,
 	): void | Promise<void> {
 		if (isTextureSource(source)) {
 			if (this.backgroundTexture !== null) {
