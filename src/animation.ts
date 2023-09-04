@@ -80,8 +80,7 @@ export class FunctionAnimation extends PlayerAnimation {
 export class IdleAnimation extends PlayerAnimation {
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
-		let t: number
-		t = this.progress * 2
+		const t = this.progress * 2
 
 		// Arm swing
 		const basicArmRotationZ = Math.PI * 0.02
@@ -105,11 +104,9 @@ export class WalkingAnimation extends PlayerAnimation {
 
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
-		let t: number
-		t = this.progress * 8
+		const t = this.progress * 8
 
-		let multiplier: number
-		multiplier = this.multiplier
+		const multiplier = this.multiplier
 
 		// Leg swing
 		player.skin.leftLeg.rotation.x = Math.sin(t) * multiplier
@@ -128,8 +125,7 @@ export class WalkingAnimation extends PlayerAnimation {
 export class RunningAnimation extends PlayerAnimation {
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
-		let t: number
-		t = this.progress * 15 + Math.PI * 0.5
+		const t = this.progress * 15 + Math.PI * 0.5
 	
 		// Leg swing with larger amplitude
 		player.skin.leftLeg.rotation.x = Math.cos(t + Math.PI) * 1.3
@@ -169,9 +165,7 @@ export class FlyingAnimation extends PlayerAnimation {
 	protected animate(player: PlayerObject): void {
 		// Body rotation finishes in 0.5s
 		// Elytra expansion finishes in 3.3s
-
-		let t: number
-		t = this.progress > 0 ? this.progress * 20 : 0
+		const t = this.progress > 0 ? this.progress * 20 : 0
 		const startProgress = clamp((t * t) / 100, 0, 1)
 
 		player.rotation.x = (startProgress * Math.PI) / 2
