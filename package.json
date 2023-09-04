@@ -44,9 +44,11 @@
 	],
 	"dependencies": {
 		"@types/three": "^0.142.0",
+		"bridge-model-viewer": "^0.7.7",
 		"prettier": "^3.0.3",
 		"skinview-utils": "^0.7.0",
-		"three": "^0.142.0"
+		"three": "^0.142.0",
+		"wintersky": "^1.2.1"
 	},
 	"devDependencies": {
 		"@gplane/tsconfig": "^6.0.0",

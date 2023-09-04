@@ -170,6 +170,20 @@ export interface SkinViewerOptions {
 		  }
 
 	/**
+	 * If jumping should be enabled or not.
+	 *
+	 * @defaultValue `true`
+	 */
+	jumping?: boolean
+
+	/**
+	 * If crouching should be enabled or not.
+	 *
+	 * @defaultValue `true`
+	 */
+	crouching?: boolean
+
+	/**
 	 * Whether to preserve the buffers until manually cleared or overwritten.
 	 *
 	 * @defaultValue `false`
@@ -280,6 +294,9 @@ export class SkinViewer {
 	 * It is used to center the player in the world.
 	 */
 	readonly playerWrapper: Group
+	readonly jumping: boolean
+	readonly crouching: boolean
+	private jumpCooldown: boolean
 
 	readonly globalLight: AmbientLight = new AmbientLight(0xffffff, 0.4)
 	readonly cameraLight: PointLight = new PointLight(0xffffff, 0.6)
@@ -423,29 +440,43 @@ export class SkinViewer {
 				ears: options.ears === 'current-skin',
 			})
 		}
+
 		if (options.cape !== undefined) {
 			this.loadCape(options.cape)
 		}
+
 		if (options.ears !== undefined && options.ears !== 'current-skin') {
 			this.loadEars(options.ears.source, {
 				textureType: options.ears.textureType,
 			})
 		}
+
 		if (options.width !== undefined) {
 			this.width = options.width
 		}
+
 		if (options.height !== undefined) {
 			this.height = options.height
 		}
+
 		if (options.background !== undefined) {
 			this.background = options.background
 		}
+
 		if (options.panorama !== undefined) {
 			this.loadPanorama(options.panorama)
 		}
+
 		if (options.nameTag !== undefined) {
 			this.nameTag = options.nameTag
 		}
+
+		this.jumping = options.jumping === undefined ? true : options.jumping
+		this.jumpCooldown = false
+
+		this.crouching =
+			options.crouching === undefined ? true : options.crouching
+
 		this.camera.position.z = 1
 		this._zoom = options.zoom === undefined ? 0.9 : options.zoom
 		this.fov = options.fov === undefined ? 50 : options.fov
@@ -453,10 +484,6 @@ export class SkinViewer {
 		this._animation =
 			options.animation === undefined ? null : options.animation
 		this.clock = new Clock()
-
-		if (this._animation === new WalkingAnimation()) {
-			console.log('balls')
-		}
 
 		if (options.renderPaused === true) {
 			this._renderPaused = true
@@ -504,14 +531,43 @@ export class SkinViewer {
 	}
 
 	onKeyDown(event: KeyboardEvent) {
-		if (event.key === 'Shift') {
-			this.playerObject.isCrouching = true
+		if (this.jumping && !this.jumpCooldown) {
+			if (event.code === 'Space') {
+				const jump = () => {
+					this.playerObject.isJumping = true
+					this.jumpCooldown = true
+
+					setTimeout(() => {
+						this.jumpCooldown = false
+					}, 500)
+				}
+
+				jump()
+			}
+		}
+
+		if (this.crouching) {
+			if (event.key === 'Shift') {
+				this.playerObject.isCrouching = true
+
+				if (this._animation instanceof WalkingAnimation) {
+					this._animation.speed = 0.6
+					this._animation.multiplier = 0.3
+				}
+			}
 		}
 	}
 
 	onKeyUp(event: KeyboardEvent) {
-		if (event.key === 'Shift') {
-			this.playerObject.isCrouching = false
+		if (this.crouching) {
+			if (event.key === 'Shift') {
+				this.playerObject.isCrouching = false
+
+				if (this._animation instanceof WalkingAnimation) {
+					this._animation.speed = 1
+					this._animation.multiplier = 0.7
+				}
+			}
 		}
 	}
 
@@ -628,9 +684,9 @@ export class SkinViewer {
 
 			if (options.makeVisible !== false) {
 				this.playerObject.backEquipment =
-				options.backEquipment === undefined
-					? 'cape'
-					: options.backEquipment
+					options.backEquipment === undefined
+						? 'cape'
+						: options.backEquipment
 			}
 		} else {
 			return loadImage(source).then((image) =>

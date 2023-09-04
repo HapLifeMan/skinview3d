@@ -13,6 +13,7 @@ import {
 	Vector3,
 	Euler,
 } from 'three'
+import { easeIn, easeOut } from './utils.js'
 
 function setUVs(
 	box: BoxGeometry,
@@ -632,6 +633,47 @@ export class PlayerObject extends Group {
 			this.skin.rightArm.position.y = -5
 			this.skin.rightArm.rotation.x = 6.6
 			this.skin.rightArm.rotation.z = -0.05 + Math.sin(t + Math.PI) * 0.05
+		}
+	}
+
+	set isJumping(value: boolean) {
+		if (!value) {
+			null
+		} else {
+			const startTime = Date.now()
+			const duration = 500
+
+			const startHeight = 0
+			const peakHeight = 10
+
+			const animateJump = () => {
+				const currentTime = Date.now()
+				const elapsedTime = currentTime - startTime
+
+				if (elapsedTime < duration) {
+					const progress = Math.min(elapsedTime / duration, 1)
+					let y: number
+
+					if (progress < duration) {
+						y =
+							startHeight +
+							(peakHeight - startHeight) * easeOut(progress * 2)
+					} else {
+						const lerpProgress = (progress - duration) * 2
+						y =
+							peakHeight -
+							(peakHeight - startHeight) * easeIn(lerpProgress)
+					}
+
+					this.position.y = y
+
+					requestAnimationFrame(animateJump)
+				} else {
+					this.position.y = startHeight
+				}
+			}
+
+			animateJump()
 		}
 	}
 

@@ -80,7 +80,8 @@ export class FunctionAnimation extends PlayerAnimation {
 export class IdleAnimation extends PlayerAnimation {
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
-		const t = this.progress * 2
+		let t: number
+		t = this.progress * 2
 
 		// Arm swing
 		const basicArmRotationZ = Math.PI * 0.02
@@ -96,24 +97,28 @@ export class IdleAnimation extends PlayerAnimation {
 
 export class WalkingAnimation extends PlayerAnimation {
 	/**
-	 * Whether to shake head when walking.
+	 * Multiply the animation's object rotations 
 	 *
 	 * @defaultValue `true`
 	 */
-	headBobbing: boolean = true
+	multiplier: number = 0.7
 
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
-		const t = this.progress * 8
+		let t: number
+		t = this.progress * 8
+
+		let multiplier: number
+		multiplier = this.multiplier
 
 		// Leg swing
-		player.skin.leftLeg.rotation.x = Math.sin(t) * 0.7
-		player.skin.rightLeg.rotation.x = Math.sin(t + Math.PI) * 0.7
+		player.skin.leftLeg.rotation.x = Math.sin(t) * multiplier
+		player.skin.rightLeg.rotation.x = Math.sin(t + Math.PI) * multiplier
 
 		// Arm swing
-		player.skin.leftArm.rotation.x = Math.sin(t + Math.PI) * 0.7
-		player.skin.rightArm.rotation.x = Math.sin(t) * 0.7
-			
+		player.skin.leftArm.rotation.x = Math.sin(t + Math.PI) * multiplier
+		player.skin.rightArm.rotation.x = Math.sin(t) * multiplier
+
 		/**
 		 * TODO: add cape swinging
 		 */
@@ -123,8 +128,9 @@ export class WalkingAnimation extends PlayerAnimation {
 export class RunningAnimation extends PlayerAnimation {
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
-		const t = this.progress * 15 + Math.PI * 0.5
-
+		let t: number
+		t = this.progress * 15 + Math.PI * 0.5
+	
 		// Leg swing with larger amplitude
 		player.skin.leftLeg.rotation.x = Math.cos(t + Math.PI) * 1.3
 		player.skin.rightLeg.rotation.x = Math.cos(t) * 1.3
@@ -164,7 +170,8 @@ export class FlyingAnimation extends PlayerAnimation {
 		// Body rotation finishes in 0.5s
 		// Elytra expansion finishes in 3.3s
 
-		const t = this.progress > 0 ? this.progress * 20 : 0
+		let t: number
+		t = this.progress > 0 ? this.progress * 20 : 0
 		const startProgress = clamp((t * t) / 100, 0, 1)
 
 		player.rotation.x = (startProgress * Math.PI) / 2
