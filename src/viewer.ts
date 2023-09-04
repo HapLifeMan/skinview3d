@@ -29,6 +29,7 @@ import {
 	DepthTexture,
 	Clock,
 	Object3D,
+	Vector3,
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {
@@ -38,9 +39,14 @@ import {
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js'
-import { PlayerAnimation, WalkingAnimation } from './animation.js'
+import {
+	FlyingAnimation,
+	PlayerAnimation,
+	WalkingAnimation,
+} from './animation.js'
 import { type BackEquipment, PlayerObject } from './model.js'
 import { NameTagObject } from './nametag.js'
+import { easeOut } from './utils.js'
 
 export interface LoadOptions {
 	/**
@@ -305,6 +311,7 @@ export class SkinViewer {
 	readonly renderPass: RenderPass
 	readonly fxaaPass: ShaderPass
 
+	private previousCameraPos: Vector3 = new Vector3()
 	readonly skinCanvas: HTMLCanvasElement
 	readonly capeCanvas: HTMLCanvasElement
 	readonly earsCanvas: HTMLCanvasElement
@@ -513,60 +520,102 @@ export class SkinViewer {
 			}
 		}
 
+		this.previousCameraPos = this.camera.position.clone()
+
+		this.controls.addEventListener('change', () => {
+			const deltaCameraPos = this.camera.position
+				.clone()
+				.sub(this.previousCameraPos)
+
+			this.playerObject.cape.rotation.z += deltaCameraPos.x * 0.01
+
+			this.previousCameraPos.copy(this.camera.position)
+		})
+
+		this.controls.addEventListener('end', () => {
+			const duration: number = 500
+			const startTime = Date.now()
+
+			const startRotation = this.playerObject.cape.rotation.z
+			// console.log(startRotation)
+
+			const animateRotation = () => {
+				const currentTime = Date.now()
+				const elapsedTime = currentTime - startTime
+
+				if (elapsedTime < duration) {
+					const progress = Math.min(elapsedTime / duration, 1)
+
+					this.playerObject.cape.rotation.z =
+						startRotation * (1 - easeOut(progress))
+
+					requestAnimationFrame(animateRotation)
+				} else {
+					this.playerObject.cape.rotation.z = 0
+				}
+			}
+
+			animateRotation()
+
+			this.previousCameraPos.set(0, 0, 0)
+		})
+
 		this.canvas.addEventListener(
 			'webglcontextlost',
 			this.onContextLost,
 			false,
 		)
+
 		this.canvas.addEventListener(
 			'webglcontextrestored',
 			this.onContextRestored,
 			false,
 		)
-		/**
-		 * Instead of "this.canvas", use "window".
-		 */
+
 		window.addEventListener('keydown', this.onKeyDown.bind(this))
 		window.addEventListener('keyup', this.onKeyUp.bind(this))
 	}
 
 	onKeyDown(event: KeyboardEvent) {
-		if (this.jumping && !this.jumpCooldown) {
-			if (event.code === 'Space') {
-				const jump = () => {
-					this.playerObject.isJumping = true
-					this.jumpCooldown = true
+		if (
+			this.jumping &&
+			event.code === 'Space' &&
+			!this.jumpCooldown &&
+			!(this._animation instanceof FlyingAnimation)
+		) {
+			const jump = () => {
+				this.playerObject.isJumping = true
+				this.jumpCooldown = true
 
-					setTimeout(() => {
-						this.jumpCooldown = false
-					}, 500)
-				}
-
-				jump()
+				setTimeout(() => {
+					this.jumpCooldown = false
+				}, 500)
 			}
+
+			jump()
 		}
 
-		if (this.crouching) {
-			if (event.key === 'Shift') {
-				this.playerObject.isCrouching = true
+		if (event.key === 'Shift' && this.crouching) {
+			this.playerObject.isCrouching = true
 
-				if (this._animation instanceof WalkingAnimation) {
-					this._animation.speed = 0.6
-					this._animation.multiplier = 0.3
-				}
+			if (this._animation instanceof WalkingAnimation) {
+				this._animation.speed = 0.6
+				this._animation.multiplier = 0.3
+			}
+
+			if (this._animation instanceof FlyingAnimation) {
+				this.playerObject.isCrouching = false
 			}
 		}
 	}
 
 	onKeyUp(event: KeyboardEvent) {
-		if (this.crouching) {
-			if (event.key === 'Shift') {
-				this.playerObject.isCrouching = false
+		if (event.key === 'Shift' && this.crouching) {
+			this.playerObject.isCrouching = false
 
-				if (this._animation instanceof WalkingAnimation) {
-					this._animation.speed = 1
-					this._animation.multiplier = 0.7
-				}
+			if (this._animation instanceof WalkingAnimation) {
+				this._animation.speed = 1
+				this._animation.multiplier = 0.7
 			}
 		}
 	}
@@ -988,6 +1037,12 @@ export class SkinViewer {
 	 * Setting this property to `null` will stop the current animation and reset the player's pose.
 	 */
 	get animation(): PlayerAnimation | null {
+		if (this._animation instanceof FlyingAnimation) {
+			this.playerObject.backEquipment = 'elytra'
+		} else {
+			this.playerObject.backEquipment = 'cape'
+		}
+
 		return this._animation
 	}
 

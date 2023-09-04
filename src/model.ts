@@ -570,19 +570,18 @@ export class PlayerObject extends Group {
 
 		this.cape = new CapeObject()
 		this.cape.name = 'cape'
-		new BodyAttachment(
-			this.skin.body,
-			this.cape.cape,
-			new Vector3(0, -2, -4),
-			new Euler(0.2, Math.PI, 0),
-		)
+		this.cape.position.y = 8
+		this.cape.position.z = -2
+		this.cape.rotation.x = CapeDefaultAngle
+		this.cape.rotation.y = Math.PI
+		this.add(this.cape)
 
 		this.elytra = new ElytraObject()
 		this.elytra.name = 'elytra'
+		this.elytra.position.y = 8
+		this.elytra.position.z = -2
 		this.elytra.visible = false
-		/**
-		 * TODO: Add elytras back
-		 */
+		this.add(this.elytra)
 
 		this.ears = new EarsObject()
 		this.ears.name = 'ears'
@@ -611,6 +610,12 @@ export class PlayerObject extends Group {
 		if (!value) {
 			this.position.z = 0
 			this.skin.setToDefault()
+
+			this.cape.position.y = 8
+			this.cape.rotation.x = CapeDefaultAngle
+
+			this.elytra.position.y = 8
+			this.elytra.rotation.x = 0
 		} else {
 			const t = 1 * 2
 
@@ -633,6 +638,12 @@ export class PlayerObject extends Group {
 			this.skin.rightArm.position.y = -5
 			this.skin.rightArm.rotation.x = 6.6
 			this.skin.rightArm.rotation.z = -0.05 + Math.sin(t + Math.PI) * 0.05
+
+			this.cape.position.y = 5
+			this.cape.rotation.x = CapeDefaultAngle + Math.PI * 0.15
+
+			this.elytra.position.y = 5
+			this.elytra.rotation.x = CapeDefaultAngle + Math.PI * 0.15
 		}
 	}
 
@@ -640,8 +651,8 @@ export class PlayerObject extends Group {
 		if (!value) {
 			null
 		} else {
+			const duration: number = 500
 			const startTime = Date.now()
-			const duration = 500
 
 			const startHeight = 0
 			const peakHeight = 10
