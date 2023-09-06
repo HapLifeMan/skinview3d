@@ -29,7 +29,6 @@ import {
 	DepthTexture,
 	Clock,
 	Object3D,
-	Vector3,
 } from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {
@@ -46,7 +45,6 @@ import {
 } from './animation.js'
 import { type BackEquipment, PlayerObject } from './model.js'
 import { NameTagObject } from './nametag.js'
-import { easeOut } from './utils.js'
 
 export interface LoadOptions {
 	/**
@@ -311,7 +309,6 @@ export class SkinViewer {
 	readonly renderPass: RenderPass
 	readonly fxaaPass: ShaderPass
 
-	private previousCameraPos: Vector3 = new Vector3()
 	readonly skinCanvas: HTMLCanvasElement
 	readonly capeCanvas: HTMLCanvasElement
 	readonly earsCanvas: HTMLCanvasElement
@@ -319,6 +316,7 @@ export class SkinViewer {
 	private capeTexture: Texture | null = null
 	private earsTexture: Texture | null = null
 	private backgroundTexture: Texture | null = null
+	private isShifting: boolean
 
 	private _disposed: boolean = false
 	private _renderPaused: boolean = false
@@ -436,6 +434,7 @@ export class SkinViewer {
 		this.controls.enablePan = false // disable pan by default
 		this.controls.minDistance = 10
 		this.controls.maxDistance = 256
+		this.isShifting = false
 
 		if (options.enableControls === false) {
 			this.controls.enabled = false
@@ -520,45 +519,49 @@ export class SkinViewer {
 			}
 		}
 
-		this.previousCameraPos = this.camera.position.clone()
+		/**
+		 *  The implementation of this is really dogshit, someone should rework it at some point. 
+		 */
 
-		this.controls.addEventListener('change', () => {
-			const deltaCameraPos = this.camera.position
-				.clone()
-				.sub(this.previousCameraPos)
+		// this.previousCameraPos = this.camera.position.clone()
 
-			this.playerObject.cape.rotation.z += deltaCameraPos.x * 0.01
+		// this.controls.addEventListener('change', () => {
+		// 	const deltaCameraPos = this.camera.position
+		// 		.clone()
+		// 		.sub(this.previousCameraPos)
 
-			this.previousCameraPos.copy(this.camera.position)
-		})
+		// 	this.playerObject.cape.rotation.z += deltaCameraPos.x / 0.01
 
-		this.controls.addEventListener('end', () => {
-			const duration: number = 500
-			const startTime = Date.now()
+		// 	this.previousCameraPos.copy(this.camera.position)
+		// })
 
-			const startRotation = this.playerObject.cape.rotation.z
-			// console.log(startRotation)
+		// this.controls.addEventListener('end', () => {
+		// 	const duration: number = 500
+		// 	const startTime = Date.now()
 
-			const animateRotation = () => {
-				const currentTime = Date.now()
-				const elapsedTime = currentTime - startTime
+		// 	const startRotation = this.playerObject.cape.rotation.z
+		// 	// console.log(startRotation)
 
-				if (elapsedTime < duration) {
-					const progress = Math.min(elapsedTime / duration, 1)
+		// 	const animateRotation = () => {
+		// 		const currentTime = Date.now()
+		// 		const elapsedTime = currentTime - startTime
 
-					this.playerObject.cape.rotation.z =
-						startRotation * (1 - easeOut(progress))
+		// 		if (elapsedTime < duration) {
+		// 			const progress = Math.min(elapsedTime / duration, 1)
 
-					requestAnimationFrame(animateRotation)
-				} else {
-					this.playerObject.cape.rotation.z = 0
-				}
-			}
+		// 			this.playerObject.cape.rotation.z =
+		// 				startRotation * (1 - easeOut(progress))
 
-			animateRotation()
+		// 			requestAnimationFrame(animateRotation)
+		// 		} else {
+		// 			this.playerObject.cape.rotation.z = 0
+		// 		}
+		// 	}
 
-			this.previousCameraPos.set(0, 0, 0)
-		})
+		// 	animateRotation()
+
+		// 	this.previousCameraPos.set(0, 0, 0)
+		// })
 
 		this.canvas.addEventListener(
 			'webglcontextlost',
@@ -595,29 +598,33 @@ export class SkinViewer {
 			jump()
 		}
 
-		if (event.key === 'Shift' && this.crouching) {
-			this.playerObject.isCrouching = true
-
+		if (event.key === 'Shift' && !this.isShifting) {
+			this.isShifting = true;
+		
+			this.playerObject.isCrouching = true;
+		
 			if (this._animation instanceof WalkingAnimation) {
-				this._animation.speed = 0.6
-				this._animation.multiplier = 0.3
+			  this._animation.speed = 0.6;
+			  this._animation.multiplier = 0.3;
 			}
-
+		
 			if (this._animation instanceof FlyingAnimation) {
-				this.playerObject.isCrouching = false
+			  this.playerObject.isCrouching = false;
 			}
-		}
+		  }
 	}
 
 	onKeyUp(event: KeyboardEvent) {
-		if (event.key === 'Shift' && this.crouching) {
-			this.playerObject.isCrouching = false
-
+		if (event.key === 'Shift') {
+			this.isShifting = false;
+			this.playerObject.isCrouching = false;
+		
 			if (this._animation instanceof WalkingAnimation) {
-				this._animation.speed = 1
-				this._animation.multiplier = 0.7
+			  // Reset animation properties
+			  this._animation.speed = 1.0;
+			  this._animation.multiplier = 1.0;
 			}
-		}
+		  }
 	}
 
 	private updateComposerSize(): void {
