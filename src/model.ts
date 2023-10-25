@@ -13,7 +13,7 @@ import {
 	Vector3,
 	Euler,
 } from 'three'
-import { easeIn, easeInOutQuad, easeOut } from './utils.js'
+import { easeIn, easeOut } from './utils.js'
 
 function setUVs(
 	box: BoxGeometry,
