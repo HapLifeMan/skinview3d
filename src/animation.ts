@@ -1,5 +1,5 @@
 import { PlayerObject } from './model.js'
-import { easeIn, easeOut, easeInOutQuad } from './utils.js'
+import { easeOut, easeInOutQuad } from './utils.js'
 
 /**
  * An animation which can be played on a {@link PlayerObject}.

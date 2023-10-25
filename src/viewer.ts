@@ -309,7 +309,7 @@ export class SkinViewer {
 	readonly sneaking: boolean
 	readonly swinging: boolean
 	private jumpCooldown: boolean
-	private swingCooldown: boolean
+	// private swingCooldown: boolean
 
 	readonly globalLight: AmbientLight = new AmbientLight(0xffffff, 0.4)
 	readonly cameraLight: PointLight = new PointLight(0xffffff, 0.6)
@@ -495,7 +495,7 @@ export class SkinViewer {
 
 		this.swinging =
 			options.enableSwinging === undefined ? true : options.enableSwinging
-		this.swingCooldown = false
+		// this.swingCooldown = false
 
 		this.camera.position.z = 1
 		this._zoom = options.zoom === undefined ? 0.9 : options.zoom
