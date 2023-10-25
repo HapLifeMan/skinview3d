@@ -92,56 +92,73 @@ export class IdleAnimation extends PlayerAnimation {
 }
 
 export class WavingAnimation extends PlayerAnimation {
-	private w = 0
-	private t = this.progress * 1.8
-
 	protected animate(player: PlayerObject): void {
-		const l = Math.PI / -1.15
-		const t = this.t
+		const t = this.progress * 12
+		const waveCount = 4
 
-		if (this.w < 5) {
+		const easedT = easeInOutQuad(
+			Math.abs((((t * 1.2) % (2 * waveCount)) - waveCount) / waveCount),
+		)
+
+		let rightArmRotationZ = ((Math.PI / 1.2) * (1 - easedT)) % (Math.PI * 4)
+		let rightLegRotationZ = 0
+		let leftArmRotationZ = 0
+
+		let headRotationZ = 0
+		let torsoPositionX = 0
+		let torsoRotationZ = 0
+
+		if (t >= waveCount * 5) {
+			rightArmRotationZ = 0
+		}
+
+		if (t < waveCount * 4) {
 			player.cape.visible = false
 			player.elytra.visible = false
 
-			if (t <= 1) {
-				player.skin.head.rotation.z = (easeOut(t) * l) / 18
+			rightLegRotationZ =
+				(Math.PI / 8) * easeOut(Math.min(1, t / 1.1 / (waveCount * 2)))
+			leftArmRotationZ =
+				(Math.PI / 12) *
+				easeOut(Math.min(1, (t * 1.2) / (waveCount * 2)))
 
-				player.skin.torso.position.x = (easeOut(t) * -l) / 1.5
-				player.skin.torso.rotation.z = (easeOut(t) * l) / 20
-
-				player.skin.rightArm.rotation.z = easeOut(t) * l
-				player.skin.leftArm.rotation.z = (easeOut(t) * -l) / 8
-
-				player.skin.rightLeg.rotation.z = (easeOut(t) * l) / 10
-			} else if (t <= 2) {
-				player.skin.head.rotation.z =
-					l / 18 - (easeInOutQuad(t - 1) * l) / 18
-
-				player.skin.torso.position.x =
-					-l / 1.5 - (easeInOutQuad(t - 1) * -l) / 1.5
-				player.skin.torso.rotation.z =
-					l / 20 - (easeInOutQuad(t - 1) * l) / 20
-
-				player.skin.rightArm.rotation.z = l - easeOut(t - 1) * l
-				player.skin.leftArm.rotation.z =
-					-l / 8 - (easeOut(t - 1) * -l) / 8
-
-				player.skin.rightLeg.rotation.z =
-					l / 10 - (easeInOutQuad(t - 1) * l) / 10
-			} else {
-				player.skin.rightArm.rotation.z = 0
-			}
+			headRotationZ =
+				(Math.PI / 18) * easeOut(Math.min(1, t / 1.3 / (waveCount * 2)))
+			torsoPositionX =
+				(Math.PI / 1.2) *
+				easeOut(Math.min(1, (t / 1.2) / (waveCount * 2)))
+			torsoRotationZ =
+				(Math.PI / 15) *
+				easeOut(Math.min(1, (t / 1.2) / (waveCount * 2)))
 		} else {
-			player.skin.rightArm.rotation.z = 0
+			const ta = t - waveCount * 4
 			player.cape.visible = true
+
+			rightLegRotationZ =
+				(Math.PI / 8) *
+				(1 - easeOut(Math.min(1, ta * 2 / (waveCount * 2))))
+			leftArmRotationZ =
+				(Math.PI / 12) *
+				(1 - easeOut(Math.min(1, ta * 2 / (waveCount * 2))))
+			headRotationZ =
+				(Math.PI / 18) *
+				(1 - easeInOutQuad(Math.min(1, ta * 2 / (waveCount * 2))))
+			torsoPositionX =
+				(Math.PI / 1.2) *
+				(1 - easeInOutQuad(Math.min(1, ta * 2 / (waveCount * 2))))
+			torsoRotationZ =
+				(Math.PI / 15) *
+				(1 - easeInOutQuad(Math.min(1, ta * 2 / (waveCount * 2))))
 		}
 
-		this.t += 0.016
+		player.skin.rightLeg.rotation.z = -rightLegRotationZ
+		player.skin.leftArm.rotation.z = leftArmRotationZ
 
-		if (t >= 2) {
-			this.w++
-			this.t = 0
-		}
+		player.skin.head.rotation.z = -headRotationZ
+		player.skin.torso.rotation.z = -torsoRotationZ
+		player.skin.torso.position.x = torsoPositionX
+
+		player.skin.rightArm.rotation.z = -rightArmRotationZ
 	}
 }
 
