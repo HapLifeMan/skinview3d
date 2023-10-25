@@ -133,12 +133,7 @@ export class WavingAnimation extends PlayerAnimation {
 			}
 		} else {
 			player.skin.rightArm.rotation.z = 0
-
-			if (player.backEquipment = 'cape') {
-				player.cape.visible = true
-			} else {
-				player.elytra.visible = true
-			}
+			player.cape.visible = true
 		}
 
 		this.t += 0.016
