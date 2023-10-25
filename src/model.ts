@@ -13,7 +13,7 @@ import {
 	Vector3,
 	Euler,
 } from 'three'
-import { easeIn, easeOut } from './utils.js'
+import { easeIn, easeInOutQuad, easeOut } from './utils.js'
 
 function setUVs(
 	box: BoxGeometry,
@@ -150,6 +150,7 @@ export class BodyAttachment {
 
 export class SkinObject extends Group {
 	// body parts
+	readonly torso: Group
 	readonly head: BodyPart
 	readonly body: BodyPart
 	readonly rightArm: BodyPart
@@ -203,7 +204,6 @@ export class SkinObject extends Group {
 		this.head.add(headMesh, head2Mesh)
 		headMesh.position.y = 4
 		head2Mesh.position.y = 4
-		this.add(this.head)
 
 		// Body
 		const bodyBox = new BoxGeometry(8, 12, 4)
@@ -218,7 +218,6 @@ export class SkinObject extends Group {
 		this.body.name = 'body'
 		this.body.add(bodyMesh, body2Mesh)
 		this.body.position.y = -6
-		this.add(this.body)
 
 		// Right Arm
 		const rightArmBox = new BoxGeometry()
@@ -251,7 +250,6 @@ export class SkinObject extends Group {
 		this.rightArm.add(rightArmPivot)
 		this.rightArm.position.x = -5
 		this.rightArm.position.y = -2
-		this.add(this.rightArm)
 
 		// Left Arm
 		const leftArmBox = new BoxGeometry()
@@ -284,7 +282,6 @@ export class SkinObject extends Group {
 		this.leftArm.add(leftArmPivot)
 		this.leftArm.position.x = 5
 		this.leftArm.position.y = -2
-		this.add(this.leftArm)
 
 		// Right Leg
 		const rightLegBox = new BoxGeometry(4, 12, 4)
@@ -327,6 +324,10 @@ export class SkinObject extends Group {
 		this.leftLeg.position.y = -12
 		this.leftLeg.position.z = -0.1
 		this.add(this.leftLeg)
+
+		this.torso = new Group()
+		this.torso.add(this.head, this.body, this.rightArm, this.leftArm)
+		this.add(this.torso)
 
 		this.modelType = 'default'
 	}
@@ -378,28 +379,26 @@ export class SkinObject extends Group {
 	 *  Sets every body part into its default position/rotation.
 	 */
 	setToDefault(): void {
-		this.head.position.y = 0
+		this.torso.position.set(0, 0, 0)
+		this.torso.rotation.set(0, 0, 0)
 
-		this.body.rotation.x = 0
-		this.body.position.z = 0
-		this.body.position.y = -6
+		this.head.position.set(0, 0, 0)
+		this.head.rotation.set(0, 0, 0)
 
-		this.leftLeg.position.z = 0
-		this.rightLeg.position.z = 0
+		this.body.position.set(0, -6, 0)
+		this.body.rotation.set(0, 0, 0)
 
-		this.leftArm.position.z = 0
-		this.leftArm.position.y = -1.5
+		this.leftArm.position.set(5, -1.2, 0)
+		this.leftArm.rotation.set(0, 0, 0)
 
-		this.leftArm.rotation.z = 0
-		this.leftArm.rotation.z = 0
-		this.leftArm.rotation.x = 0
+		this.rightArm.position.set(-5, -1.2, 0)
+		this.rightArm.rotation.set(0, 0, 0)
 
-		this.rightArm.position.z = 0
-		this.rightArm.position.y = -1.5
+		this.leftLeg.position.set(1.9, -12, -0.1)
+		this.leftLeg.rotation.set(0, 0, 0)
 
-		this.rightArm.rotation.z = 0
-		this.rightArm.rotation.z = 0
-		this.rightArm.rotation.x = 0
+		this.rightLeg.position.set(-1.9, -12, -0.1)
+		this.rightLeg.rotation.set(0, 0, 0)
 	}
 
 	resetJoints(): void {
@@ -552,7 +551,7 @@ export class EarsObject extends Group {
 
 export type BackEquipment = 'cape' | 'elytra'
 
-const CapeDefaultAngle = (10.8 * Math.PI) / 180
+const CapeDefaultAngle = (12 * Math.PI) / 180
 
 export class PlayerObject extends Group {
 	readonly skin: SkinObject
@@ -606,7 +605,7 @@ export class PlayerObject extends Group {
 		this.elytra.visible = value === 'elytra'
 	}
 
-	set isCrouching(value: boolean) {
+	set isSneaking(value: boolean) {
 		if (!value) {
 			this.position.z = 0
 			this.skin.setToDefault()
@@ -654,8 +653,8 @@ export class PlayerObject extends Group {
 			const duration: number = 500
 			const startTime = Date.now()
 
-			const startHeight = 0
-			const peakHeight = 10
+			const sH = 0
+			const pH = 12
 
 			const animateJump = () => {
 				const currentTime = Date.now()
@@ -666,27 +665,74 @@ export class PlayerObject extends Group {
 					let y: number
 
 					if (progress < duration) {
-						y =
-							startHeight +
-							(peakHeight - startHeight) * easeOut(progress * 2)
+						y = sH + (pH - sH) * easeOut(progress * 2)
 					} else {
 						const lerpProgress = (progress - duration) * 2
-						y =
-							peakHeight -
-							(peakHeight - startHeight) * easeIn(lerpProgress)
+						y = pH - (pH - sH) * easeIn(lerpProgress)
 					}
 
 					this.position.y = y
 
 					requestAnimationFrame(animateJump)
 				} else {
-					this.position.y = startHeight
+					this.position.y = sH
 				}
 			}
 
 			animateJump()
 		}
 	}
+
+	// set isSwinging(value: boolean) {
+	// 	if (!value) {
+	// 		null
+	// 	} else {
+	// 		const duration: number = 1000
+	// 		const startTime = Date.now()
+
+	// 		const sZ = 0
+	// 		const pZ = Math.PI / -1.2
+	// 		const sY = 0
+	// 		const pY = Math.PI / 1.7
+	// 		const sX = 0
+	// 		const pX = Math.PI / 2
+
+	// 		const animateSwing = () => {
+	// 			const currentTime = Date.now()
+	// 			const elapsedTime = currentTime - startTime
+
+	// 			if (elapsedTime < duration) {
+	// 				const progress = Math.min(elapsedTime / duration, 1)
+	// 				let z: number
+	// 				let y: number
+	// 				let x: number
+
+	// 				if (progress < duration) {
+	// 					z = sZ + (pZ - sZ) * easeOut(progress * 2)
+	// 					y = sY + (pY - sY) * easeOut(progress * 2)
+	// 					x = sX + (pX - sX) * easeOut(progress * 2)
+	// 				} else {
+	// 					const lerpProgress = (progress - duration) * 2
+	// 					z = pZ - (pZ - sZ) * easeIn(lerpProgress)
+	// 					y = pY + (pY - sY) * easeOut(lerpProgress)
+	// 					x = pX + (pX - sX) * easeOut(lerpProgress)
+	// 				}
+
+	// 				this.skin.rightArm.rotation.z = z
+	// 				this.skin.rightArm.rotation.y = y
+	// 				this.skin.rightArm.rotation.x = x
+
+	// 				requestAnimationFrame(animateSwing)
+	// 			} else {
+	// 				this.skin.rightArm.rotation.z = sZ
+	// 				this.skin.rightArm.rotation.y = sY
+	// 				this.skin.rightArm.rotation.x = sX
+	// 			}
+	// 		}
+
+	// 		animateSwing()
+	// 	}
+	// }
 
 	resetJoints(): void {
 		this.skin.resetJoints()

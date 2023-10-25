@@ -174,18 +174,25 @@ export interface SkinViewerOptions {
 		  }
 
 	/**
-	 * If jumping should be enabled or not.
+	 * Whether jumping should be enabled or not.
 	 *
 	 * @defaultValue `true`
 	 */
-	jumping?: boolean
+	enableJumping?: boolean
 
 	/**
-	 * If crouching should be enabled or not.
+	 * Whether crouching should be enabled or not.
 	 *
 	 * @defaultValue `true`
 	 */
-	crouching?: boolean
+	enableSneaking?: boolean
+
+	/**
+	 * Whether jumping should be enabled or not.
+	 *
+	 * @defaultValue `true`
+	 */
+	enableSwinging?: boolean
 
 	/**
 	 * Whether to preserve the buffers until manually cleared or overwritten.
@@ -299,8 +306,10 @@ export class SkinViewer {
 	 */
 	readonly playerWrapper: Group
 	readonly jumping: boolean
-	readonly crouching: boolean
+	readonly sneaking: boolean
+	readonly swinging: boolean
 	private jumpCooldown: boolean
+	private swingCooldown: boolean
 
 	readonly globalLight: AmbientLight = new AmbientLight(0xffffff, 0.4)
 	readonly cameraLight: PointLight = new PointLight(0xffffff, 0.6)
@@ -477,11 +486,16 @@ export class SkinViewer {
 			this.nameTag = options.nameTag
 		}
 
-		this.jumping = options.jumping === undefined ? true : options.jumping
+		this.jumping =
+			options.enableJumping === undefined ? true : options.enableJumping
 		this.jumpCooldown = false
 
-		this.crouching =
-			options.crouching === undefined ? true : options.crouching
+		this.sneaking =
+			options.enableSneaking === undefined ? true : options.enableSneaking
+
+		this.swinging =
+			options.enableSwinging === undefined ? true : options.enableSwinging
+		this.swingCooldown = false
 
 		this.camera.position.z = 1
 		this._zoom = options.zoom === undefined ? 0.9 : options.zoom
@@ -520,7 +534,7 @@ export class SkinViewer {
 		}
 
 		/**
-		 *  The implementation of this is really dogshit, someone should rework it at some point. 
+		 *  The implementation of this is really dogshit, someone should rework it at some point.
 		 */
 
 		// this.previousCameraPos = this.camera.position.clone()
@@ -577,7 +591,24 @@ export class SkinViewer {
 
 		window.addEventListener('keydown', this.onKeyDown.bind(this))
 		window.addEventListener('keyup', this.onKeyUp.bind(this))
+
+		// this.canvas.addEventListener('click', this.onClick.bind(this))
 	}
+
+	// onClick(event: MouseEvent) {
+	// 	if (this.swinging && event.button === 0 && !this.swingCooldown) {
+	// 		const swing = () => {
+	// 			this.playerObject.isSwinging = true
+	// 			this.swingCooldown = true
+
+	// 			setTimeout(() => {
+	// 				this.swingCooldown = false
+	// 			}, 1500)
+	// 		}
+
+	// 		swing()
+	// 	}
+	// }
 
 	onKeyDown(event: KeyboardEvent) {
 		if (
@@ -599,32 +630,32 @@ export class SkinViewer {
 		}
 
 		if (event.key === 'Shift' && !this.isShifting) {
-			this.isShifting = true;
-		
-			this.playerObject.isCrouching = true;
-		
+			this.isShifting = true
+
+			this.playerObject.isSneaking = true
+
 			if (this._animation instanceof WalkingAnimation) {
-			  this._animation.speed = 0.6;
-			  this._animation.multiplier = 0.3;
+				this._animation.speed = 0.6
+				this._animation.m = 0.3
 			}
-		
+
 			if (this._animation instanceof FlyingAnimation) {
-			  this.playerObject.isCrouching = false;
+				this.playerObject.isSneaking = false
 			}
-		  }
+		}
 	}
 
 	onKeyUp(event: KeyboardEvent) {
 		if (event.key === 'Shift') {
-			this.isShifting = false;
-			this.playerObject.isCrouching = false;
-		
+			this.isShifting = false
+			this.playerObject.isSneaking = false
+
 			if (this._animation instanceof WalkingAnimation) {
-			  // Reset animation properties
-			  this._animation.speed = 1.0;
-			  this._animation.multiplier = 1.0;
+				// Reset animation properties
+				this._animation.speed = 1.0
+				this._animation.m = 1.0
 			}
-		  }
+		}
 	}
 
 	private updateComposerSize(): void {

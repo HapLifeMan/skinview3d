@@ -1,4 +1,5 @@
 import { PlayerObject } from './model.js'
+import { easeIn, easeOut, easeInOutQuad } from './utils.js'
 
 /**
  * An animation which can be played on a {@link PlayerObject}.
@@ -90,19 +91,74 @@ export class IdleAnimation extends PlayerAnimation {
 	}
 }
 
+export class WavingAnimation extends PlayerAnimation {
+	private w = 0
+	private t = this.progress * 1.8
+
+	protected animate(player: PlayerObject): void {
+		const l = Math.PI / -1.15
+		const t = this.t
+
+		if (this.w < 5) {
+			player.cape.visible = false
+			player.elytra.visible = false
+
+			if (t <= 1) {
+				player.skin.head.rotation.z = (easeOut(t) * l) / 18
+
+				player.skin.torso.position.x = (easeOut(t) * -l) / 1.5
+				player.skin.torso.rotation.z = (easeOut(t) * l) / 20
+
+				player.skin.rightArm.rotation.z = easeOut(t) * l
+				player.skin.leftArm.rotation.z = (easeOut(t) * -l) / 8
+
+				player.skin.rightLeg.rotation.z = (easeOut(t) * l) / 10
+			} else if (t <= 2) {
+				player.skin.head.rotation.z =
+					l / 18 - (easeInOutQuad(t - 1) * l) / 18
+
+				player.skin.torso.position.x =
+					-l / 1.5 - (easeInOutQuad(t - 1) * -l) / 1.5
+				player.skin.torso.rotation.z =
+					l / 20 - (easeInOutQuad(t - 1) * l) / 20
+
+				player.skin.rightArm.rotation.z = l - easeOut(t - 1) * l
+				player.skin.leftArm.rotation.z =
+					-l / 8 - (easeOut(t - 1) * -l) / 8
+
+				player.skin.rightLeg.rotation.z =
+					l / 10 - (easeInOutQuad(t - 1) * l) / 10
+			} else {
+				player.skin.rightArm.rotation.z = 0
+			}
+		} else {
+			player.skin.rightArm.rotation.z = 0
+
+			if ((player.backEquipment = 'cape')) {
+				player.cape.visible = true
+			} else {
+				player.elytra.visible = true
+			}
+		}
+
+		this.t += 0.016
+
+		if (t >= 2) {
+			this.w++
+			this.t = 0
+		}
+	}
+}
+
 export class WalkingAnimation extends PlayerAnimation {
-	/**
-	 * Multiply the animation's object rotations
-	 *
-	 * @defaultValue `true`
-	 */
-	multiplier: number = 0.7
+	/** multiplier */
+	m: number = 0.7
 
 	protected animate(player: PlayerObject): void {
 		// Multiply by animation's natural speed
 		const t = this.progress * 8
 
-		const multiplier = this.multiplier
+		const multiplier = this.m
 
 		// Leg swing
 		player.skin.leftLeg.rotation.x = Math.sin(t) * multiplier
