@@ -307,7 +307,6 @@ export class SkinViewer {
 	readonly playerWrapper: Group
 	readonly jumping: boolean
 	readonly sneaking: boolean
-	readonly swinging: boolean
 	private jumpCooldown: boolean
 	// private swingCooldown: boolean
 
@@ -441,8 +440,11 @@ export class SkinViewer {
 
 		this.controls = new OrbitControls(this.camera, this.canvas)
 		this.controls.enablePan = false // disable pan by default
+		this.controls.enableDamping = true
+		this.controls.dampingFactor = 0.1
+		this.controls.rotateSpeed = 0.8
 		this.controls.minDistance = 10
-		this.controls.maxDistance = 256
+		this.controls.maxDistance = 50
 		this.isShifting = false
 
 		if (options.enableControls === false) {
@@ -493,10 +495,6 @@ export class SkinViewer {
 		this.sneaking =
 			options.enableSneaking === undefined ? true : options.enableSneaking
 
-		this.swinging =
-			options.enableSwinging === undefined ? true : options.enableSwinging
-		// this.swingCooldown = false
-
 		this.camera.position.z = 1
 		this._zoom = options.zoom === undefined ? 0.9 : options.zoom
 		this.fov = options.fov === undefined ? 50 : options.fov
@@ -533,49 +531,7 @@ export class SkinViewer {
 			}
 		}
 
-		/**
-		 *  The implementation of this is really dogshit, someone should rework it at some point.
-		 */
-
-		// this.previousCameraPos = this.camera.position.clone()
-
-		// this.controls.addEventListener('change', () => {
-		// 	const deltaCameraPos = this.camera.position
-		// 		.clone()
-		// 		.sub(this.previousCameraPos)
-
-		// 	this.playerObject.cape.rotation.z += deltaCameraPos.x / 0.01
-
-		// 	this.previousCameraPos.copy(this.camera.position)
-		// })
-
-		// this.controls.addEventListener('end', () => {
-		// 	const duration: number = 500
-		// 	const startTime = Date.now()
-
-		// 	const startRotation = this.playerObject.cape.rotation.z
-		// 	// console.log(startRotation)
-
-		// 	const animateRotation = () => {
-		// 		const currentTime = Date.now()
-		// 		const elapsedTime = currentTime - startTime
-
-		// 		if (elapsedTime < duration) {
-		// 			const progress = Math.min(elapsedTime / duration, 1)
-
-		// 			this.playerObject.cape.rotation.z =
-		// 				startRotation * (1 - easeOut(progress))
-
-		// 			requestAnimationFrame(animateRotation)
-		// 		} else {
-		// 			this.playerObject.cape.rotation.z = 0
-		// 		}
-		// 	}
-
-		// 	animateRotation()
-
-		// 	this.previousCameraPos.set(0, 0, 0)
-		// })
+		// this.canvas.addEventListener('click', this.onClick.bind(this))
 
 		this.canvas.addEventListener(
 			'webglcontextlost',
@@ -591,24 +547,7 @@ export class SkinViewer {
 
 		window.addEventListener('keydown', this.onKeyDown.bind(this))
 		window.addEventListener('keyup', this.onKeyUp.bind(this))
-
-		// this.canvas.addEventListener('click', this.onClick.bind(this))
 	}
-
-	// onClick(event: MouseEvent) {
-	// 	if (this.swinging && event.button === 0 && !this.swingCooldown) {
-	// 		const swing = () => {
-	// 			this.playerObject.isSwinging = true
-	// 			this.swingCooldown = true
-
-	// 			setTimeout(() => {
-	// 				this.swingCooldown = false
-	// 			}, 1500)
-	// 		}
-
-	// 		swing()
-	// 	}
-	// }
 
 	onKeyDown(event: KeyboardEvent) {
 		if (

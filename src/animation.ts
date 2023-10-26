@@ -126,29 +126,28 @@ export class WavingAnimation extends PlayerAnimation {
 				(Math.PI / 18) * easeOut(Math.min(1, t / 1.3 / (waveCount * 2)))
 			torsoPositionX =
 				(Math.PI / 1.2) *
-				easeOut(Math.min(1, (t / 1.2) / (waveCount * 2)))
+				easeOut(Math.min(1, t / 1.2 / (waveCount * 2)))
 			torsoRotationZ =
-				(Math.PI / 15) *
-				easeOut(Math.min(1, (t / 1.2) / (waveCount * 2)))
+				(Math.PI / 15) * easeOut(Math.min(1, t / 1.2 / (waveCount * 2)))
 		} else {
 			const ta = t - waveCount * 4
 			player.cape.visible = true
 
 			rightLegRotationZ =
 				(Math.PI / 8) *
-				(1 - easeOut(Math.min(1, ta * 2 / (waveCount * 2))))
+				(1 - easeOut(Math.min(1, (ta * 2) / (waveCount * 2))))
 			leftArmRotationZ =
 				(Math.PI / 12) *
-				(1 - easeOut(Math.min(1, ta * 2 / (waveCount * 2))))
+				(1 - easeOut(Math.min(1, (ta * 2) / (waveCount * 2))))
 			headRotationZ =
 				(Math.PI / 18) *
-				(1 - easeInOutQuad(Math.min(1, ta * 2 / (waveCount * 2))))
+				(1 - easeInOutQuad(Math.min(1, (ta * 2) / (waveCount * 2))))
 			torsoPositionX =
 				(Math.PI / 1.2) *
-				(1 - easeInOutQuad(Math.min(1, ta * 2 / (waveCount * 2))))
+				(1 - easeInOutQuad(Math.min(1, (ta * 2) / (waveCount * 2))))
 			torsoRotationZ =
 				(Math.PI / 15) *
-				(1 - easeInOutQuad(Math.min(1, ta * 2 / (waveCount * 2))))
+				(1 - easeInOutQuad(Math.min(1, (ta * 2) / (waveCount * 2))))
 		}
 
 		player.skin.rightLeg.rotation.z = -rightLegRotationZ
